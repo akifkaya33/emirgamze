@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="tr" >
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gerçek Sevgili</title>
+  <style>
+    /* Genel stil */
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      overflow: hidden;
+      font-family: "Comic Sans MS", sans-serif;
+      user-select: none;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      background: linear-gradient(270deg, #330000, #660033, #330066, #003366, #003333);
+      background-size: 1000% 1000%;
+      animation: backgroundShift 20s ease infinite;
+      position: relative;
+      box-sizing: border-box;
+      padding: 1vh 2vw;
+    }
+
+    @keyframes backgroundShift {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    h1 {
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      margin: 20px auto;
+      z-index: 10;
+      position: relative;
+      max-width: 90vw;
+      word-wrap: break-word;
+    }
+
+    .button-container {
+      margin-top: 30px;
+      position: relative;
+      z-index: 10;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    button {
+      padding: 15px 30px;
+      font-size: clamp(1rem, 3vw, 1.2rem);
+      margin: 0;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      position: relative;
+      z-index: 10;
+      user-select: none;
+      min-width: 100px;
+      max-width: 45vw;
+      transition: background-color 0.3s ease;
+      touch-action: manipulation;
+    }
+
+    button:active {
+      transform: scale(0.95);
+    }
+
+    #yesBtn,
+    #finalYes {
+      background-color: #66ff99;
+      color: #004d26;
+    }
+
+    #noBtn,
+    #sadYes,
+    #sadNo {
+      background-color: #ff6666;
+      color: #660000;
+      position: relative;
+    }
+
+    #finalYes {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .emoji {
+      font-size: clamp(3rem, 10vw, 5rem);
+      margin-top: 20px;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Yıldızlar için canvas */
+    #stars {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Animasyonlu uçan emojiler */
+    .floating-emoji {
+      position: fixed;
+      font-size: clamp(1.5rem, 5vw, 2.5rem);
+      opacity: 0.8;
+      user-select: none;
+      pointer-events: none;
+      animation-timing-function: ease-in-out;
+      animation-iteration-count: infinite;
+      z-index: 5;
+    }
+
+  </style>
+</head>
+<body>
+  <canvas id="stars"></canvas>
+  <div id="scene">
+    <h1 id="text">GERÇEK SEVGİLİ</h1>
+  </div>
+
+  <script>
+    // Arka plan yıldızları için canvas ayarları
+    const canvas = document.getElementById("stars");
+    const ctx = canvas.getContext("2d");
+    let width, height;
+    let stars = [];
+
+    function setupCanvas() {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+
+      stars = [];
+      for (let i = 0; i < 150; i++) {
+        stars.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          radius: Math.random() * 1.2 + 0.3,
+          alpha: Math.random(),
+          delta: (Math.random() * 0.02) + 0.005,
+        });
+      }
+    }
+
+    function drawStars() {
+      ctx.clearRect(0, 0, width, height);
+      for (let star of stars) {
+        star.alpha += star.delta;
+        if (star.alpha <= 0) {
+          star.alpha = 0;
+          star.delta = -star.delta;
+        } else if (star.alpha >= 1) {
+          star.alpha = 1;
+          star.delta = -star.delta;
+        }
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.radius, 0, 2 * Math.PI);
+        ctx.fillStyle = `rgba(255, 255, 255, ${star.alpha})`;
+        ctx.fill();
+      }
+      requestAnimationFrame(drawStars);
+    }
+
+    window.addEventListener("resize", () => {
+      setupCanvas();
+    });
+
+    setupCanvas();
+    drawStars();
+
+    // Animasyonlu uçan emojiler oluşturma
+    const emojis = ["💖", "🌸", "💐", "❤️", "🌹"];
+
+    function createFloatingEmoji() {
+      const emoji = document.createElement("div");
+      emoji.classList.add("floating-emoji");
+      emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+
+      emoji.style.left = Math.random() * window.innerWidth + "px";
+      emoji.style.top = window.innerHeight + 30 + "px";
+
+      const duration = 8000 + Math.random() * 7000;
+
+      emoji.animate(
+        [
+          { transform: `translateY(0)`, opacity: 1 },
+          { transform: `translateY(-${window.innerHeight + 100}px)`, opacity: 0 }
+        ],
+        {
+          duration: duration,
+          iterations: 1,
+          easing: "ease-out"
+        }
+      );
+
+      document.body.appendChild(emoji);
+
+      setTimeout(() => {
+        emoji.remove();
+      }, duration);
+    }
+
+    setInterval(createFloatingEmoji, 800);
+
+    // Sayfa akışı için değişkenler
+    let step = 0;
+    const scene = document.getElementById("scene");
+    const body = document.body;
+
+    function nextStep() {
+      step++;
+      scene.innerHTML = "";
+    }
+
+    // İlk sayfa tıklayınca 1. soruya geç
+    body.addEventListener("click", () => {
+      if(step === 0){
+        step = 1;
+        showQuestion();
+      }
+    });
+
+    // 1. soru: Beni seviyor musun?
+    function showQuestion() {
+      scene.innerHTML = `
+        <h1>Beni seviyor musun?</h1>
+        <div class="button-container">
+          <button id="yesBtn">Evet</button>
+          <button id="noBtn">Hayır</button>
+        </div>
+      `;
+
+      document.getElementById("yesBtn").addEventListener("click", () => {
+        step = 2; // Yeni soruya geç
+        showKnowLove();
+      });
+
+      document.getElementById("noBtn").addEventListener("click", () => {
+        step = 3; // Hayır cevabı süreci
+        showReally();
+      });
+    }
+
+    // 2. soru: Benim de seni sevdiğimi biliyor musun?
+    function showKnowLove() {
+      scene.innerHTML = `
+        <h1>Benim de seni sevdiğimi biliyor musun?</h1>
+        <div class="button-container">
+          <button id="knowYes">Evet</button>
+        </div>
+      `;
+
+      document.getElementById("knowYes").addEventListener("click", () => {
+        step = 4;
+        showAngryMessage();
+      });
+    }
+
+    // “Gerçekten mi?” ve “Evet” kaçan buton bölümü (mobilde dokununca da çalışır)
+    function showReally() {
+      scene.innerHTML = `<h1>Gerçekten mi? 😢</h1>
+        <div class="button-container" style="position:relative; height:100px; max-width:300px; margin:0 auto;">
+          <button id="sadYes" style="position:absolute;">Evet</button>
+          <button id="sadNo">Hayır</button>
+        </div>`;
+
+      const sadYes = document.getElementById("sadYes");
+      const container = sadYes.parentElement;
+      sadYes.style.top = "0px";
+      sadYes.style.left = "0px";
+      sadYes.style.pointerEvents = "none"; // Tıklanmasın ama görünsün
+      sadYes.style.transition = "top 0.2s ease, left 0.2s ease";
+
+      // Fare için kaçma
+      container.addEventListener("mousemove", (e) => {
+        if(window.matchMedia("(hover: hover)").matches){
+          const rect = container.getBoundingClientRect();
+          const mouseX = e.clientX - rect.left;
+          const mouseY = e.clientY - rect.top;
+
+          const btnWidth = sadYes.offsetWidth;
+          const btnHeight = sadYes.offsetHeight;
+
+          const threshold = 100;
+
+          let newLeft = parseFloat(sadYes.style.left) || 0;
+          let newTop = parseFloat(sadYes.style.top) || 0;
+
+          const distX = mouseX - newLeft - btnWidth / 2;
+          const distY = mouseY - newTop - btnHeight / 2;
+          const distance = Math.sqrt(distX * distX + distY * distY);
+
+          if (distance < threshold) {
+            newLeft += (Math.random() - 0.5) * 150;
+            newTop += (Math.random() - 0.5) * 150;
+
+            newLeft = Math.min(Math.max(newLeft, 0), container.clientWidth - btnWidth);
+            newTop = Math.min(Math.max(newTop, 0), container.clientHeight - btnHeight);
+
+            sadYes.style.left = newLeft + "px";
+            sadYes.style.top = newTop + "px";
+          }
+        }
+      });
+
+      // Dokunmatik cihazlarda dokununca kaçma
+      let touchTimeout;
+      container.addEventListener("touchstart", (e) => {
+        if(!window.matchMedia("(hover: hover)").matches){
+          if(touchTimeout) clearTimeout(touchTimeout);
+          const rect = container.getBoundingClientRect();
+          let newLeft = Math.random() * (container.clientWidth - sadYes.offsetWidth);
+          let newTop = Math.random() * (container.clientHeight - sadYes.offsetHeight);
+          sadYes.style.left = newLeft + "px";
+          sadYes.style.top = newTop + "px";
+          sadYes.style.pointerEvents = "none";
+          touchTimeout = setTimeout(() => {
+            sadYes.style.pointerEvents = "none";
+          }, 300);
+        }
+      });
+
+      document.getElementById("sadNo").addEventListener("click", () => {
+        step = 5;
+        showOneOption();
+      });
+    }
+
+    // “Başka seçeneğin olduğunu mu sanıyordun?” mesajı ve Hayır butonu
+    function showAngryMessage() {
+      scene.innerHTML = `
+        <h1>Başka seçeneğin olduğunu mu sanıyordun? <span style="font-size:1.2em;">😠</span></h1>
+        <div class="button-container">
+          <button id="angryNo">Hayır</button>
+        </div>
+      `;
+
+      document.getElementById("angryNo").addEventListener("click", () => {
+        step = 6;
+        showFinal();
+      });
+    }
+
+    // Sadece EVET butonlu sahne
+    function showOneOption() {
+      scene.innerHTML = `<h1>Beni seviyor musun?</h1>
+        <div class="button-container">
+          <button id="finalYes" onclick="showFinal()">EVET</button>
+        </div>`;
+    }
+
+    // Son sahneler
+    function showFinal() {
+      scene.innerHTML = `<h1>Bundan emindim!!</h1>`;
+      body.onclick = () => {
+        step = 7;
+        showFlowers();
+      };
+    }
+
+    function showFlowers() {
+      scene.innerHTML = `<h1>Dünyanın en iyi sevgilisisin</h1>
+        <p>Bu çiçekler sana:</p>
+        <div class="emoji">💐💐💐💐💐</div>`;
+      body.onclick = () => {
+        step = 8;
+        showLast();
+      };
+    }
+
+    function showLast() {
+      scene.innerHTML = `<h1>İyi ki sevgilimsin ❤️ Seni çok seviyorum!</h1>`;
+    }
+  </script>
+</body>
+</html>
